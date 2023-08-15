@@ -29,7 +29,7 @@ function preload ()
 
     this.load.image('bg', 'bg.jpg');
     this.load.image('hero', 'hero.png');
-    this.load.image('red', 'particle.png');
+    this.load.image('red', 'particle-cloud.png');
     
     // basket
     this.load.image('basket-0', 'basket/0.png');
@@ -55,6 +55,9 @@ function preload ()
 
 function create ()
 {
+    this.points = 0;
+
+
     // this.add.image(0, 0, 'bg').setOrigin(0, 0);
     this.iter = 0;
     this.speed = 1;
@@ -76,23 +79,45 @@ function create ()
     });
 
     // create group
-    this.hero = this.physics.add.image(400, 100, 'hero');
-    this.hero.setVelocity(0, 0);
-    this.hero.setCollideWorldBounds(true);
-    this.emitter.startFollow(this.hero);
+    // this.hero = this.physics.add.image(400, 100, 'hero');
+    // this.hero.setVelocity(0, 0);
+    // this.hero.setCollideWorldBounds(true);
 
 
-    this.basket = this.physics.add.image(680, 130, 'basket-0');
+    this.basket = this.physics.add.image(1000, 600, 'basket-0');
     this.basket.setVelocity(0, 0);
     this.basket.setCollideWorldBounds(true);
+    // attach basket to hero
+    this.basket.setImmovable(true);
+    this.basket.setDepth(1);
+    this.basket.setOrigin(0.5, 0.5);
+    this.emitter.startFollow(this.basket, 0, 100, true);
+
+    
+
+    // create random fruits on the screen
+    this.fruits = this.physics.add.group();
+    // this.physics.add.overlap(this.basket, this.fruits, function (basket, fruit) {
+    //     fruit.destroy();
+    //     this.points += 1;
+    //     console.log(this.points);
+    // }, null, this);
+
+
 
     this.cursors = this.input.keyboard.createCursorKeys();
+
 
     // this.basket = this.physics.add.image(400, 100, 'basket-0');
     // this.basket.setVelocity(0, 0);
     // this.basket.setCollideWorldBounds(true);
     // this.basket.setImmovable(true);
     // this.basket.setDepth(1);
+
+    // create points text on screen
+    this.pointsText = this.add.text(16, 16, 'points: 0', { fontSize: '32px', fill: '#fff', fontFamily: 'Arial', fontWeight: 'bold' });
+    this.pointsText.setDepth(1);
+
     
 }
 
@@ -104,36 +129,95 @@ function update ()
     // this.bg.tileScaleY = this.tween.getValue();
     this.iter += 0.01;
 
-    this.hero.setVelocity(0);
+    this.pointsText.setText('points: ' + this.points);
+
     this.basket.setVelocity(0);
+    // this.basket.setVelocity(0);
+
+    // generate random fruits from the top right corner, and it will movement the same with bg,
+    
+    if (this.fruits.getLength() < 4) {
+        
+        var fruit = this.fruits.create(Math.random() * 2000, Math.random() * (-400), 'fruit-' + Math.floor(Math.random() * 10 + 1));
+
+        fruit.setVelocity(-300, 0.06);
+        // fruit.setBounce(1, 1);
+        // fruit.setCollideWorldBounds(true);
+        fruit.setDepth(1);
+        fruit.setOrigin(0.5, 0.5);
+
+    }
+
+    this.physics.add.overlap(this.basket, this.fruits, function (basket, fruit) {
+        fruit.destroy();
+        this.points += 1;
+        console.log(this.points);
+    }, null, this);
+
+
+    // destroy fruits when out of screen
+    this.fruits.getChildren().forEach(function (fruit) {
+        if (fruit.x < 0) {
+            fruit.destroy();
+        }
+    });
+
+    // change basket image based on points, increase speed
+    if (this.points < 10) {
+        this.basket.setTexture('basket-0');
+    } else if (this.points < 20) {
+        this.basket.setTexture('basket-1');
+        this.speed = 1.5;
+    } else if (this.points < 30) {
+        this.basket.setTexture('basket-2');
+        this.speed = 2;
+    } else if (this.points < 40) {
+        this.basket.setTexture('basket-3');
+        this.speed = 2.5;
+    } else  {
+        this.basket.setTexture('basket-4');
+        this.speed = 3;
+    }
+
+    // 
+
+
+
 
     if (this.cursors.left.isDown)
     {
-        this.hero.setVelocityX(-300 * this.speed);
-        this.hero.flipX = true;
-
+        this.basket.setVelocityX(-300 * this.speed);
         this.basket.flipX = true;
+
     }
     else if (this.cursors.right.isDown)
     {
-        this.hero.setVelocityX(300 * this.speed);
-        this.hero.flipX = false;
-
+        this.basket.setVelocityX(300 * this.speed);
         this.basket.flipX = false;
+
     }
 
     if (this.cursors.up.isDown)
     {
-        this.hero.setVelocityY(-300 * this.speed);
-
         this.basket.setVelocityY(-300 * this.speed);
+
+        // this.basket.setVelocityY(-300 * this.speed);
     }
     else if (this.cursors.down.isDown)
     {
-        this.hero.setVelocityY(300 * this.speed);
-
         this.basket.setVelocityY(300 * this.speed);
+
+        // this.basket.setVelocityY(300 * this.speed);
     }
+
+
+    /// basket will slowly move to the pointer
+    if (this.input.activePointer.isDown) {
+        this.physics.moveToObject(this.basket, this.input.activePointer, 300 * this.speed);
+    }
+    
+
+
 }
 
 function render ()
