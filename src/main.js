@@ -25,7 +25,7 @@ var game = new Phaser.Game(config);
 
 function preload ()
 {
-    this.load.setBaseURL('./src/game/');
+    this.load.setBaseURL('./game/');
 
     this.load.image('bg', 'bg.jpg');
     this.load.image('hero', 'hero.png');
