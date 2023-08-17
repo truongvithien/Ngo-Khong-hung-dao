@@ -137,16 +137,34 @@ function update ()
     // generate random fruits from the top right corner, and it will movement the same with bg,
     
     if (this.fruits.getLength() < 4) {
+
+        // Fruit X random [2000, 2000]
+        // Fruit height random [0, 300]
         
-        var fruit = this.fruits.create(Math.random() * 2000, Math.random() * (-400), 'fruit-' + Math.floor(Math.random() * 10 + 1));
+        var fruit = this.fruits.create(2000 + Math.random() * 0, Math.random() * 300, 'fruit-' + (Math.floor(Math.random() * 10) + 1));
 
-        fruit.setVelocity(-300, 0.06);
-        // fruit.setBounce(1, 1);
-        // fruit.setCollideWorldBounds(true);
-        fruit.setDepth(1);
+        this.physics.moveToObject(fruit, 
+            {
+                x: this.input.activePointer.x,
+                y: 0 // this.input.activePointer.y
+            }, 300 * this.speed);
+        // fruit.setVelocity(-100, 0);
+
+        // fruit.setCollideWorldBounds(false);
+        // fruit.setBounce(1);
+        // fruit.setDepth(1);
         fruit.setOrigin(0.5, 0.5);
-
+        // fruit.setImmovable(true);
     }
+
+    
+    // Fruit will drop when it reach [600, 1400] from the left
+
+
+
+
+
+    // destroy fruits when overlap with basket
 
     this.physics.add.overlap(this.basket, this.fruits, function (basket, fruit) {
         fruit.destroy();
@@ -199,13 +217,13 @@ function update ()
 
     if (this.cursors.up.isDown)
     {
-        this.basket.setVelocityY(-300 * this.speed);
+        // this.basket.setVelocityY(-300 * this.speed);
 
         // this.basket.setVelocityY(-300 * this.speed);
     }
     else if (this.cursors.down.isDown)
     {
-        this.basket.setVelocityY(300 * this.speed);
+        // this.basket.setVelocityY(300 * this.speed);
 
         // this.basket.setVelocityY(300 * this.speed);
     }
@@ -213,7 +231,11 @@ function update ()
 
     /// basket will slowly move to the pointer
     if (this.input.activePointer.isDown) {
-        this.physics.moveToObject(this.basket, this.input.activePointer, 300 * this.speed);
+        this.physics.moveToObject(this.basket, 
+            {
+                x: this.input.activePointer.x,
+                y: 600 // this.input.activePointer.y
+            }, 300 * this.speed);
     }
     
 
